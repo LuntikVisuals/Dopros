@@ -41,7 +41,7 @@ object GameData {
             id = "pavel",
             name = "Павел Новиков",
             role = "Свидетель · человек",
-            intro = "Мужчина 34 лет. Дрожат руки. Говорит, что «просто проходил мимо».",
+            intro = "Мужчина 34 лет. Дрожат руки. Говорит, что просто проходил мимо.",
             questions = listOf(
                 Question(
                     "Где вы были в ночь пропажи?",
@@ -56,7 +56,7 @@ object GameData {
                     listOf(
                         Answer("Нет. Первый раз слышу.", 5f),
                         Answer("Видел пару раз во дворе.", 18f, fearSubject = 6f, flags = setOf("knew")),
-                        Answer("Мы… пересекались. По работе.", 25f, fearSubject = 12f, flags = setOf("knew", "work"))
+                        Answer("Мы пересекались. По работе.", 25f, fearSubject = 12f, flags = setOf("knew", "work"))
                     )
                 ),
                 Question(
@@ -64,7 +64,7 @@ object GameData {
                     listOf(
                         Answer("Порезался на кухне!", 10f, fearSubject = 15f),
                         Answer("Это не кровь.", 5f, fearSubject = 20f, fearPlayer = 5f),
-                        Answer("…Я помогал человеку после драки.", 30f, fearSubject = 10f, flags = setOf("fight"))
+                        Answer("Я помогал человеку после драки.", 30f, fearSubject = 10f, flags = setOf("fight"))
                     )
                 ),
                 Question(
@@ -96,7 +96,7 @@ object GameData {
                     listOf(
                         Answer("Откуда мне знать?", 5f),
                         Answer("Если бы я знала — сказала бы.", 12f, fearSubject = 10f),
-                        Answer("…Под мостом. Но я не убивала.", 40f, fearSubject = 30f, flags = setOf("location"))
+                        Answer("Под мостом. Но я не убивала.", 40f, fearSubject = 30f, flags = setOf("location"))
                     )
                 ),
                 Question(
@@ -104,7 +104,7 @@ object GameData {
                     listOf(
                         Answer("Мне ничего не нужно.", 5f, fearPlayer = 5f),
                         Answer("Деньги. Только деньги.", 28f, fearSubject = 12f, flags = setOf("motive")),
-                        Answer("Он угрожал рассказать… о другом деле.", 35f, fearSubject = 20f, flags = setOf("motive", "blackmail"))
+                        Answer("Он угрожал рассказать о другом деле.", 35f, fearSubject = 20f, flags = setOf("motive", "blackmail"))
                     )
                 ),
                 Question(
@@ -112,7 +112,7 @@ object GameData {
                     listOf(
                         Answer("У меня есть адвокат.", 5f, fearPlayer = 10f),
                         Answer("Да. Только уберите от меня ток.", 22f, fearSubject = 5f),
-                        Answer("Я подпишу всё, что скажете. Мне страшно.", 30f, fearSubject = −5f, flags = setOf("confess"))
+                        Answer("Я подпишу всё. Мне страшно.", 30f, fearSubject = -5f, flags = setOf("confess"))
                     )
                 )
             )
