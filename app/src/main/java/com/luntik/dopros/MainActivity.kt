@@ -121,7 +121,7 @@ private fun NamePickScreen(onPick: (String) -> Unit) {
     ) {
         Spacer(Modifier.height(32.dp))
         Text("ДОПРОС", color = C.Blood, fontSize = 36.sp, fontWeight = FontWeight.Bold)
-        Text("0.1 · training", color = C.Mute, fontSize = 13.sp)
+        Text("0.1 · 2D · training", color = C.Mute, fontSize = 13.sp)
         Spacer(Modifier.height(8.dp))
         Text("Choose investigator name", color = C.Dim, fontSize = 15.sp)
         Spacer(Modifier.height(20.dp))
@@ -147,21 +147,17 @@ private fun MenuScreen(investigator: String, onStart: () -> Unit) {
     ) {
         Text("ДОПРОС", color = C.Blood, fontSize = 40.sp, fontWeight = FontWeight.Bold)
         Text("Investigator: $investigator", color = C.Dim, fontSize = 14.sp)
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(12.dp))
+        // mini room preview
+        InterrogationRoom2D(fearSubject = 25f, fx = FxKind.None, onFxDone = {})
+        Spacer(Modifier.height(16.dp))
         Panel {
             Text("Location", color = C.Mute, fontSize = 12.sp)
             Text("Earth · Precinct", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-            Text("Training · 2 humans", color = C.Dim, fontSize = 13.sp)
+            Text("2D room · 2 humans", color = C.Dim, fontSize = 13.sp)
             Spacer(Modifier.height(16.dp))
             ActionBtn("Start interrogation", C.Blood, onStart)
         }
-        Spacer(Modifier.height(16.dp))
-        Text(
-            "18+ · You ASK questions. Suspect answers.\nShock / flashlight. Don't die.",
-            color = C.Mute,
-            fontSize = 12.sp,
-            lineHeight = 18.sp
-        )
     }
 }
 
@@ -171,7 +167,6 @@ private fun InterrogationScreen(
     suspect: Suspect,
     onFinished: (stars: Float, info: Float, label: String) -> Unit
 ) {
-    // remaining questions the PLAYER can ask
     var remaining by remember { mutableStateOf(suspect.asks) }
     var info by remember { mutableFloatStateOf(0f) }
     var fearSubject by remember { mutableFloatStateOf(20f) }
@@ -179,6 +174,7 @@ private fun InterrogationScreen(
     var shockCd by remember { mutableIntStateOf(0) }
     var lightCd by remember { mutableIntStateOf(0) }
     var excessShock by remember { mutableIntStateOf(0) }
+    var fx by remember { mutableStateOf(FxKind.None) }
     var log by remember {
         mutableStateOf(listOf("${suspect.name} sits down.", suspect.intro))
     }
@@ -203,7 +199,7 @@ private fun InterrogationScreen(
     }
 
     fun addLog(line: String) {
-        log = (log + line).takeLast(8)
+        log = (log + line).takeLast(6)
     }
 
     fun finishCase() {
@@ -224,65 +220,87 @@ private fun InterrogationScreen(
         onFinished(stars, info, label)
     }
 
-    Column(Modifier.fillMaxSize().statusBarsPadding().padding(16.dp)) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
         Text("Inv. $investigator", color = C.Mute, fontSize = 11.sp)
-        Text(suspect.name, color = C.Text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text(suspect.name, color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Text(suspect.role, color = C.Dim, fontSize = 12.sp)
+        Spacer(Modifier.height(8.dp))
+
+        // 2D ROOM
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .border(1.dp, C.Border, RoundedCornerShape(16.dp))
+        ) {
+            InterrogationRoom2D(
+                fearSubject = fearSubject,
+                fx = fx,
+                onFxDone = { fx = FxKind.None }
+            )
+        }
         Spacer(Modifier.height(10.dp))
 
         Meter("Info", info / suspect.maxInfo, C.Ok)
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(4.dp))
         Meter("Suspect fear", fearSubject / 100f, C.Fear)
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(4.dp))
         Meter("Your fear", fearPlayer / 100f, C.Blood)
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(8.dp))
 
         Panel {
             log.forEach {
-                Text(it, color = C.Dim, fontSize = 13.sp, lineHeight = 18.sp)
-                Spacer(Modifier.height(4.dp))
+                Text(it, color = C.Dim, fontSize = 12.sp, lineHeight = 16.sp)
+                Spacer(Modifier.height(3.dp))
             }
         }
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(8.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ToolBtn(
                 if (shockCd > 0) "Shock ${shockCd}s" else "Shock",
                 C.Shock,
-                shockCd == 0 && alive
+                shockCd == 0 && alive && fx == FxKind.None
             ) {
                 shockCd = 5
                 excessShock++
+                fx = FxKind.Shock
                 fearSubject = (fearSubject + 18f).coerceAtMost(100f)
                 fearPlayer = (fearPlayer + 4f).coerceAtMost(100f)
-                addLog("You use the shock. ${suspect.name} jerks.")
+                addLog("Shock. ${suspect.name} jerks.")
             }
             ToolBtn(
                 if (lightCd > 0) "Light ${lightCd}s" else "Flashlight",
                 C.Fear,
-                lightCd == 0 && alive
+                lightCd == 0 && alive && fx == FxKind.None
             ) {
                 lightCd = 4
+                fx = FxKind.Flash
                 fearSubject = (fearSubject + 12f).coerceAtMost(100f)
                 fearPlayer = (fearPlayer + 2f).coerceAtMost(100f)
-                addLog("Flashlight in the face. Fear climbs.")
+                addLog("Flashlight in the face.")
             }
         }
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(10.dp))
 
         if (remaining.isNotEmpty() && alive) {
             Text("Ask:", color = C.Mute, fontSize = 12.sp)
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(6.dp))
             remaining.forEach { ask ->
                 Panel {
                     Text(
                         ask.question,
                         color = C.Text,
-                        fontSize = 14.sp,
+                        fontSize = 13.sp,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                // YOU asked — THEY answer
                                 addLog("You: ${ask.question}")
                                 addLog("${suspect.name}: ${ask.reply}")
                                 info = (info + ask.infoGain).coerceAtMost(suspect.maxInfo)
@@ -291,14 +309,15 @@ private fun InterrogationScreen(
                                 if (ask.infoGain >= 25f) addLog("Important lead logged.")
                                 remaining = remaining - ask
                             }
-                            .padding(4.dp)
+                            .padding(2.dp)
                     )
                 }
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(5.dp))
             }
         } else if (alive) {
             ActionBtn("End interrogation", C.Blood) { finishCase() }
         }
+        Spacer(Modifier.height(24.dp))
     }
 }
 
@@ -337,10 +356,10 @@ private fun Meter(label: String, value: Float, color: Color) {
     Column {
         Text(label, color = C.Mute, fontSize = 11.sp)
         Box(
-            Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp))
+            Modifier.fillMaxWidth().height(7.dp).clip(RoundedCornerShape(4.dp))
                 .background(Color.White.copy(alpha = 0.08f))
         ) {
-            Box(Modifier.fillMaxWidth(anim).height(8.dp).background(color))
+            Box(Modifier.fillMaxWidth(anim).height(7.dp).background(color))
         }
     }
 }
@@ -348,8 +367,8 @@ private fun Meter(label: String, value: Float, color: Color) {
 @Composable
 private fun Panel(content: @Composable ColumnScope.() -> Unit) {
     Column(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(C.Panel)
-            .border(1.dp, C.Border, RoundedCornerShape(14.dp)).padding(14.dp),
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(C.Panel)
+            .border(1.dp, C.Border, RoundedCornerShape(12.dp)).padding(12.dp),
         content = content
     )
 }
