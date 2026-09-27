@@ -1,12 +1,9 @@
 package com.luntik.dopros
 
-data class Question(
-    val text: String,
-    val answers: List<Answer>
-)
-
-data class Answer(
-    val text: String,
+/** Question you ASK. Reply is what the suspect says back. */
+data class AskOption(
+    val question: String,
+    val reply: String,
     val infoGain: Float,
     val fearSubject: Float = 0f,
     val fearPlayer: Float = 0f,
@@ -18,102 +15,94 @@ data class Suspect(
     val name: String,
     val role: String,
     val intro: String,
-    val questions: List<Question>,
+    val asks: List<AskOption>,
     val maxInfo: Float = 100f
 )
 
 object GameData {
     val investigatorNames = listOf(
-        "Иван Громов",
-        "Мария Волкова",
-        "Алексей Чёрный",
-        "Елена Морозова",
-        "Дмитрий Стальной",
-        "Анна Кривцова",
-        "Сергей Белов",
-        "Ольга Тень",
-        "Никита Разумов",
-        "Виктор Немой"
+        "Ivan Gromov",
+        "Maria Volkova",
+        "Alex Chernov",
+        "Elena Moroz",
+        "Dmitri Steel",
+        "Anna Kriv",
+        "Sergei Belov",
+        "Olga Ten",
+        "Nikita Razum",
+        "Victor Nemoy"
     )
 
     val tutorialSuspects: List<Suspect> = listOf(
         Suspect(
-            id = "pavel",
-            name = "Павел Новиков",
-            role = "Свидетель · человек",
-            intro = "Мужчина 34 лет. Дрожат руки. Говорит, что просто проходил мимо.",
-            questions = listOf(
-                Question(
-                    "Где вы были в ночь пропажи?",
-                    listOf(
-                        Answer("Дома. Смотрел телевизор.", 8f, fearSubject = 2f),
-                        Answer("В баре до трёх.", 15f, fearSubject = 5f, flags = setOf("alibi_bar")),
-                        Answer("Не помню. Напился.", 5f, fearSubject = 8f, fearPlayer = 2f)
-                    )
+            id = "paul",
+            name = "Paul Novak",
+            role = "Witness · human",
+            intro = "Male, 34. Hands shake. Says he was just passing by.",
+            asks = listOf(
+                AskOption(
+                    question = "Where were you the night of the disappearance?",
+                    reply = "At a bar until three. Ask anyone.",
+                    infoGain = 15f,
+                    fearSubject = 5f,
+                    flags = setOf("alibi_bar")
                 ),
-                Question(
-                    "Вы знали пропавшего?",
-                    listOf(
-                        Answer("Нет. Первый раз слышу.", 5f),
-                        Answer("Видел пару раз во дворе.", 18f, fearSubject = 6f, flags = setOf("knew")),
-                        Answer("Мы пересекались. По работе.", 25f, fearSubject = 12f, flags = setOf("knew", "work"))
-                    )
+                AskOption(
+                    question = "Did you know the missing person?",
+                    reply = "Saw him in the yard a few times. That's it.",
+                    infoGain = 18f,
+                    fearSubject = 6f,
+                    flags = setOf("knew")
                 ),
-                Question(
-                    "Почему у вас кровь на рукаве?",
-                    listOf(
-                        Answer("Порезался на кухне!", 10f, fearSubject = 15f),
-                        Answer("Это не кровь.", 5f, fearSubject = 20f, fearPlayer = 5f),
-                        Answer("Я помогал человеку после драки.", 30f, fearSubject = 10f, flags = setOf("fight"))
-                    )
+                AskOption(
+                    question = "Why is there blood on your sleeve?",
+                    reply = "I… helped someone after a fight. Not what you think.",
+                    infoGain = 30f,
+                    fearSubject = 14f,
+                    flags = setOf("fight")
                 ),
-                Question(
-                    "Кто ещё был рядом той ночью?",
-                    listOf(
-                        Answer("Никого.", 5f),
-                        Answer("Какая-то женщина. Ирина, кажется.", 35f, fearSubject = 18f, flags = setOf("names_irina")),
-                        Answer("Я никого не сдам.", 0f, fearSubject = 25f, fearPlayer = 8f)
-                    )
+                AskOption(
+                    question = "Who else was nearby that night?",
+                    reply = "Some woman. Irene, I think. Leave me alone.",
+                    infoGain = 35f,
+                    fearSubject = 18f,
+                    flags = setOf("names_irene")
                 )
             )
         ),
         Suspect(
-            id = "irina",
-            name = "Ирина Савельева",
-            role = "Подозреваемая · человек",
-            intro = "Женщина 29 лет. Спокойная, слишком спокойная. Смотрит прямо.",
-            questions = listOf(
-                Question(
-                    "Вы Ирина? Павел назвал ваше имя.",
-                    listOf(
-                        Answer("Павел врёт.", 10f, fearSubject = 5f),
-                        Answer("Да. И что?", 20f, fearSubject = 8f, flags = setOf("confirm")),
-                        Answer("Он сам всё устроил.", 25f, fearSubject = 15f, flags = setOf("blame_pavel"))
-                    )
+            id = "irene",
+            name = "Irene Savell",
+            role = "Suspect · human",
+            intro = "Female, 29. Too calm. Looks straight at you.",
+            asks = listOf(
+                AskOption(
+                    question = "Paul named you. Are you Irene?",
+                    reply = "Yes. And so what?",
+                    infoGain = 20f,
+                    fearSubject = 8f,
+                    flags = setOf("confirm")
                 ),
-                Question(
-                    "Где пропавший сейчас?",
-                    listOf(
-                        Answer("Откуда мне знать?", 5f),
-                        Answer("Если бы я знала — сказала бы.", 12f, fearSubject = 10f),
-                        Answer("Под мостом. Но я не убивала.", 40f, fearSubject = 30f, flags = setOf("location"))
-                    )
+                AskOption(
+                    question = "Where is the missing person now?",
+                    reply = "Under the bridge. But I didn't kill anyone.",
+                    infoGain = 40f,
+                    fearSubject = 28f,
+                    flags = setOf("location")
                 ),
-                Question(
-                    "Зачем вам это было нужно?",
-                    listOf(
-                        Answer("Мне ничего не нужно.", 5f, fearPlayer = 5f),
-                        Answer("Деньги. Только деньги.", 28f, fearSubject = 12f, flags = setOf("motive")),
-                        Answer("Он угрожал рассказать о другом деле.", 35f, fearSubject = 20f, flags = setOf("motive", "blackmail"))
-                    )
+                AskOption(
+                    question = "What was your motive?",
+                    reply = "He threatened to talk about another case. Money. Fear.",
+                    infoGain = 35f,
+                    fearSubject = 18f,
+                    flags = setOf("motive", "blackmail")
                 ),
-                Question(
-                    "Вы будете сотрудничать?",
-                    listOf(
-                        Answer("У меня есть адвокат.", 5f, fearPlayer = 10f),
-                        Answer("Да. Только уберите от меня ток.", 22f, fearSubject = 5f),
-                        Answer("Я подпишу всё. Мне страшно.", 30f, fearSubject = -5f, flags = setOf("confess"))
-                    )
+                AskOption(
+                    question = "Will you cooperate?",
+                    reply = "I'll sign whatever you need. Just… stop with the shock.",
+                    infoGain = 28f,
+                    fearSubject = -4f,
+                    flags = setOf("confess")
                 )
             )
         )
